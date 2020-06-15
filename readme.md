@@ -37,9 +37,9 @@ We can verify this basic information by asking any current driver of a car which
 
 Requirements:
 * Gear changes are now able to operate on a specific range. For example:
-    * 1st -> 2nd: 2000rpm
+    * 1st -> 2nd: 2001rpm
     * 2nd -> 3rd: 2500rpm
-    * 4th -> 3rd: 532rpm
+    * 4th -> 3rd: 499rpm
 * These ranges need to be individually configurable for different models, this configuration is already determined and will be provided to the module when it is initialised. We aren't required to read the configuration from anywhere. For example, another team could be tasked with deciding the ranges based on historical fuel consumption
 * Stakeholders want us to guarantee that existing cars will continue to operate with 0% error as they have done for 10 years since initial release!
 * Stakeholders want us to guarantee that the software will continue to operate with the new capability for another 10 years! 
