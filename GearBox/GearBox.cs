@@ -2,36 +2,51 @@
 {
     public class GearBox
     {
-        private int s = 0;
-        private int e = 0;
+        private int _gear = 0;
+        private int _rpm = 0;
 
-        public void DoIt(int i) {
-            if (s < 0) {
-                e = i;
-            } 
-            else {
-                if (s > 0) {
-                    if (i > 2000) {
-                        s++;
-                    } 
-                    else if (i < 500) {
-                        s--;
-                    }
-                }
-            }	
-		
-            if (s > 6) {
-                s--;
-            } 
-            
-            else if (s < 1) {
-                s++;
-            }
-		
-            e = i;
+        //deprecated
+        public void DoIt(int rpm) {
+            ShiftGears(rpm);
         }
 
-        public int S() => s;
-        public int E() => e;
+        public void ShiftGears(int rpm)
+        {
+            const int boundaryForShiftingUp = 2000;
+            const int boundaryForShiftingDown = 500;
+            const int neutral = 0;
+            const int maxGear = 6;
+            
+            if (_gear >neutral && rpm >boundaryForShiftingUp )
+            {
+                _gear++;
+            }
+
+            if (_gear >neutral && rpm <boundaryForShiftingDown )
+            {
+                _gear--;
+            }
+            
+            if (_gear == neutral)
+            {
+                _gear++;
+            }
+
+            if (_gear > maxGear)
+            {
+                _gear--;
+            }
+
+            _rpm = rpm;
+        }
+        public int S() => _gear;
+        public int E() => _rpm;
     }
 }
+
+// 1st -> 2nd: 2000rpm
+// 2nd -> 3rd: 2500rpm
+// 3rd -> 4th: 2800rpm
+// 4th -> 5th: 2200rpm
+// 5th -> 6th: 1000rpm
+// 4th -> 3rd: 532rpm

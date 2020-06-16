@@ -78,6 +78,42 @@ namespace GearBox.Tests
             }
         }
         
+        
         //Test Shifting Down
+        [Theory]
+        [InlineData(499,6,5)]
+        [InlineData(500,6,6)]
+        [InlineData(499,2,1)]
+        [InlineData(501,2,2)]
+        private void ShiftsDownWithRPMLowerThan500(int rpm, int startingGear,int expectedNewGear)
+        {
+            ShiftUpGears(startingGear); 
+             _gearbox.DoIt(rpm);
+             var result = _gearbox.S(); 
+             Assert.Equal(expectedNewGear, result);
+        }
+        
+        [Theory]
+        [InlineData(499,1,1)]
+        [InlineData(0,1,1)]
+        [InlineData(-5,1,1)]
+        
+        private void ShouldNotShiftDownFrom1stTo0Ever(int rpm, int startingGear,int expectedNewGear)
+        {
+            ShiftUpGears(startingGear); 
+            _gearbox.DoIt(rpm);
+            var result = _gearbox.S(); 
+            Assert.Equal(expectedNewGear, result);
+        }
+
+        [Fact]
+        private void EShouldReturnTheLastRPM()
+        {
+            var inputRPM = 999;
+            _gearbox.DoIt(inputRPM);
+            var result =_gearbox.E();
+            Assert.Equal(inputRPM,result);
+
+        }
     }    
 }
