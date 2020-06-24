@@ -53,15 +53,14 @@ namespace GearBox.Tests
         
         //shifting up with specific rpm
         [Fact]
-        public void ShiftFrom1to2WithSpecificRPM()
+        public void ShiftFrom1To2WithSpecificRpm()
         {
-          ShiftUpGears(1);
-          var rpms =_rpmUpDictionary;
-          var boundaryForGear1 = rpms[1];
+          ShiftUpGears(1, _gearbox);
+          var boundaryForGear1 = _rpmUpDictionary[1];
           
-            _gearbox.DoIt(boundaryForGear1 +1);
-            var resultAfterDoIt = _gearbox.S();
-            Assert.Equal(2, resultAfterDoIt);
+          _gearbox.DoIt(boundaryForGear1 +1);
+          var resultAfterDoIt = _gearbox.S();
+          Assert.Equal(2, resultAfterDoIt);
         }
 
         //Shifting UP
@@ -86,7 +85,7 @@ namespace GearBox.Tests
         [InlineData(7)]
         [InlineData(2000)]
         [InlineData(2001)]
-        public void ShiftFrom0To1stGearWithAnyRPM(int rpm)
+        public void ShiftFrom0To1StGearWithAnyRpm(int rpm)
         {
             _gearbox.DoIt(rpm);
             var result = _gearbox.S();
@@ -113,32 +112,14 @@ namespace GearBox.Tests
         public void ShouldNotShiftUpPastMaxGear(int amountOfGearChanges)
         {
             var maxGear = _rpmDownDictionary.Keys.Max();
-            ShiftUpGears(amountOfGearChanges);
+            ShiftUpGears(amountOfGearChanges,_gearbox);
             var result = _gearbox.S();
             
             Assert.Equal(maxGear, result);
         }
 
         
-        //TODO  look into this method, see if you can replace it with the custom one.
-        private void ShiftUpGears(int gearShifts)
-        {
-            _gearbox.DoIt(0); //from neutral to first gear
-            for (int i = 1; i < gearShifts; i++)
-            {
-                if (_rpmUpDictionary.ContainsKey(i))
-                {
-                    _gearbox.DoIt(_rpmUpDictionary[i] +1);
-                }
-                else
-                {
-                        _gearbox.DoIt(int.MaxValue);
-                }
-            }
-        }
-        
         //Test Shifting Down
-
         private static IDictionary<int, int> ThreeGearsDown()
         {
             var dictionary = new Dictionary<int, int>()
@@ -193,7 +174,7 @@ namespace GearBox.Tests
             //arrange
             var upDictionary = DefaultUpDict();
             var gearBox = new GearBox(upDictionary,downDictionary);
-            ShiftUpGearsCustom(startingGear,gearBox); 
+            ShiftUpGears(startingGear,gearBox); 
             
             //action
             gearBox.DoIt(downDictionary[startingGear]-1);
@@ -202,7 +183,7 @@ namespace GearBox.Tests
             Assert.Equal(expectedGear, result);
         }
         
-        private void ShiftUpGearsCustom(int gearShifts, GearBox gearBox)
+        private void ShiftUpGears(int gearShifts, GearBox gearBox)
         {
             gearBox.DoIt(0); //from neutral to first gear
             for (int i = 1; i < gearShifts; i++)
@@ -218,9 +199,14 @@ namespace GearBox.Tests
 
         private void OnlyShiftsDownWithRPMLowerThanThreshold(int rpm, int startingGear,int expectedNewGear)
         {
-            ShiftUpGears(startingGear); 
+            //arrange
+            ShiftUpGears(startingGear, _gearbox); 
+            
+            //action
              _gearbox.DoIt(rpm);
              var result = _gearbox.S(); 
+             
+             //assert
              Assert.Equal(expectedNewGear, result);
         }
         
@@ -231,7 +217,7 @@ namespace GearBox.Tests
         [InlineData(-5,1,1)]
         private void ShouldNotShiftDownFrom1stTo0Ever(int rpm, int startingGear,int expectedNewGear)
         {
-            ShiftUpGears(startingGear); 
+            ShiftUpGears(startingGear, _gearbox); 
             _gearbox.DoIt(rpm);
             var result = _gearbox.S(); 
             Assert.Equal(expectedNewGear, result);

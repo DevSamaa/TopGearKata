@@ -11,7 +11,6 @@ namespace GearBox
         private readonly IDictionary<int, int> _rpmUpDictionary;
         private readonly IDictionary<int, int> _rpmDownDictionary;
 
-
         public GearBox()
         {
             //default constructor (if nothing else is passed in, this will be used.)
