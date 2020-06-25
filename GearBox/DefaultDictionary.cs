@@ -4,23 +4,14 @@ namespace GearBox
 {
     public class DefaultDictionary
     {
-        public IDictionary<int, int> RpmUpDictionary = new Dictionary<int, int>()
+        public IDictionary<int, Gear> RpmDictionary = new Dictionary<int, Gear>()
         {
-            {1,2000},
-            {2,2000},
-            {3,2000},
-            {4,2000},
-            {5,2000}
-
-        };
-        
-        public IDictionary<int, int> RpmDownDictionary = new Dictionary<int, int>()
-        {
-            {2,500},
-            {3,500},
-            {4,500},
-            {5,500},
-            {6,500}
+            {1, new Gear { ShiftUp = 2000, ShiftDown = null }},
+            {2, new Gear { ShiftUp = 2000, ShiftDown = 500 }},
+            {3, new Gear { ShiftUp = 2000, ShiftDown = 500 }},
+            {4, new Gear { ShiftUp = 2000, ShiftDown = 500 }},
+            {5, new Gear { ShiftUp = 2000, ShiftDown = 500 }},
+            {6, new Gear { ShiftUp = null, ShiftDown = 500 }},
         };
     }
 }

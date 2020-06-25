@@ -8,29 +8,20 @@ namespace GearBox.Tests
     public class GearBoxTests
     {
         private  GearBox _gearbox;
-        
-        private IDictionary<int, int> _rpmUpDictionary = new Dictionary<int, int>()
-        {
-            {1,1300},
-            {2,2500},
-            {3,2800},
-            {4,2200},
-            {5,1000}
 
-        };
-        
-        private IDictionary<int, int> _rpmDownDictionary = new Dictionary<int, int>()
+        public IDictionary<int, Gear> _rpmDictionary = new Dictionary<int, Gear>()
         {
-            {2,530},
-            {3,550},
-            {4,580},
-            {5,600},
-            {6,580}
+            {1, new Gear { ShiftUp = 1300, ShiftDown = null }},
+            {2, new Gear { ShiftUp = 2500, ShiftDown = 530 }},
+            {3, new Gear { ShiftUp = 2800, ShiftDown = 550 }},
+            {4, new Gear { ShiftUp = 2200, ShiftDown = 580 }},
+            {5, new Gear { ShiftUp = 1000, ShiftDown = 600 }},
+            {6, new Gear { ShiftUp = null, ShiftDown = 580 }},
         };
 
         public GearBoxTests()
         {
-           _gearbox = new GearBox(_rpmUpDictionary, _rpmDownDictionary);
+           _gearbox = new GearBox(_rpmDictionary);
         }
 
         //new GearBox() without passing a dictionary can be created
@@ -56,9 +47,9 @@ namespace GearBox.Tests
         public void ShiftFrom1To2WithSpecificRpm()
         {
           ShiftUpGears(1, _gearbox);
-          var boundaryForGear1 = _rpmUpDictionary[1];
+          var boundaryForGear1 = _rpmDictionary[1].ShiftUp.Value;
           
-          _gearbox.DoIt(boundaryForGear1 +1);
+          _gearbox.DoIt(boundaryForGear1 + 1);
           var resultAfterDoIt = _gearbox.S();
           Assert.Equal(2, resultAfterDoIt);
         }
@@ -96,10 +87,10 @@ namespace GearBox.Tests
         [Fact]
         public void Given1stGearAndRPM2001_ShouldReturnS2()
         {
-            var boundaryForGear1 = _rpmUpDictionary[1];
+            var boundaryForGear1 = _rpmDictionary[1].ShiftUp.Value;
             
             _gearbox.DoIt(100);
-            _gearbox.DoIt(boundaryForGear1+1); 
+            _gearbox.DoIt(boundaryForGear1 + 1); 
             var result = _gearbox.S();
             Assert.Equal(2, result);
         }
@@ -111,7 +102,7 @@ namespace GearBox.Tests
         [InlineData(20)]
         public void ShouldNotShiftUpPastMaxGear(int amountOfGearChanges)
         {
-            var maxGear = _rpmDownDictionary.Keys.Max();
+            var maxGear = _rpmDictionary.Keys.Max();
             ShiftUpGears(amountOfGearChanges,_gearbox);
             var result = _gearbox.S();
             
@@ -120,42 +111,32 @@ namespace GearBox.Tests
 
         
         //Test Shifting Down
-        private static IDictionary<int, int> ThreeGearsDown()
+        private static IDictionary<int, Gear> ThreeGearsDown()
         {
-            var dictionary = new Dictionary<int, int>()
+            var dictionary = new Dictionary<int, Gear>()
             {
-                {2,430},
-                {3,450},
+                {1, new Gear { ShiftDown = null, ShiftUp = 1300 }},
+                {2, new Gear { ShiftDown = 430, ShiftUp = 2500 }},
+                {3, new Gear { ShiftDown = 450, ShiftUp = null }},
             };
             return dictionary;
         }
         
-        private static IDictionary<int, int> SixGearsDown()
+        private static IDictionary<int, Gear> SixGearsDown()
         {
-            var dictionary = new Dictionary<int, int>()
+            var dictionary = new Dictionary<int, Gear>()
             {
-                {2,430},
-                {3,450},
-                {4,480},
-                {5,400},
-                {6,480}
+                {1, new Gear { FuelUsage = 40, ShiftDown = null, ShiftUp = 1300 }},
+                {2, new Gear { FuelUsage = 30, ShiftDown = 430, ShiftUp = 2500 }},
+                {3, new Gear { FuelUsage = 50, ShiftDown = 450, ShiftUp = 2800 }},
+                {4, new Gear { FuelUsage = 70, ShiftDown = 480, ShiftUp = 2200 }},
+                {5, new Gear { FuelUsage = 80, ShiftDown = 400, ShiftUp = 1000 }},
+                {6, new Gear { FuelUsage = 30, ShiftDown = 480, ShiftUp = null }},
             };
+
             return dictionary;
         }
 
-        private IDictionary<int, int> DefaultUpDict()
-        {
-            var dictionary = new Dictionary<int, int>()
-            {
-                {1, 1300},
-                {2, 2500},
-                {3, 2800},
-                {4, 2200},
-                {5, 1000}
-            };
-            return dictionary;
-        }
-        
         public static IEnumerable<object[]> TestData()
         {
             yield return new object[] {SixGearsDown(),6};
@@ -169,15 +150,14 @@ namespace GearBox.Tests
        [Theory]
        [MemberData(nameof(TestData))]
         
-        private void ShiftsDownWithRpmLowerThanThreshold(IDictionary<int,int>downDictionary, int startingGear)
+        private void ShiftsDownWithRpmLowerThanThreshold(IDictionary<int,Gear> rpmDictionary, int startingGear)
         {
             //arrange
-            var upDictionary = DefaultUpDict();
-            var gearBox = new GearBox(upDictionary,downDictionary);
+            var gearBox = new GearBox(rpmDictionary);
             ShiftUpGears(startingGear,gearBox); 
             
             //action
-            gearBox.DoIt(downDictionary[startingGear]-1);
+            gearBox.DoIt(rpmDictionary[startingGear].ShiftDown.Value - 1);
             var result = gearBox.S();
             var expectedGear = startingGear - 1;
             Assert.Equal(expectedGear, result);

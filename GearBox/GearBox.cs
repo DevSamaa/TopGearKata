@@ -8,19 +8,16 @@ namespace GearBox
     {
         private int _gear = 0;
         private int _rpm = 0;
-        private readonly IDictionary<int, int> _rpmUpDictionary;
-        private readonly IDictionary<int, int> _rpmDownDictionary;
+        private readonly IDictionary<int, Gear> _rpmDictionary;
 
         public GearBox()
         {
             //default constructor (if nothing else is passed in, this will be used.)
-             _rpmUpDictionary = new DefaultDictionary().RpmUpDictionary;
-            _rpmDownDictionary = new DefaultDictionary().RpmDownDictionary;
+            _rpmDictionary = new DefaultDictionary().RpmDictionary;
         }
-        public GearBox(IDictionary<int,int> incomingUpDictionary, IDictionary<int,int> incomingDownDictionary)
+        public GearBox(IDictionary<int,Gear> incomingDictionary)
         {
-            _rpmUpDictionary = incomingUpDictionary;
-            _rpmDownDictionary = incomingDownDictionary;
+            _rpmDictionary = incomingDictionary;
         }
 
         //deprecated
@@ -44,32 +41,47 @@ namespace GearBox
             _rpm = rpm;
         }
 
-        private int? BoundaryForShifting(IDictionary<int,int>incomingDictionary)
+        private Gear GetCurrentGear(IDictionary<int,Gear> incomingDictionary)
         {
-            int boundaryForShifting = 0;
             if (incomingDictionary.ContainsKey(_gear))
             {
-                boundaryForShifting = incomingDictionary[_gear];
+                return incomingDictionary[_gear];
             }
-            else
-            {
-                return null;
-            }
-            return boundaryForShifting;
+
+            return null;
         }
-
         
-
         private bool ShouldShiftUp(int rpm)
         {
             const int neutral = 0;
-            var boundary = BoundaryForShifting(_rpmUpDictionary);
-            return _gear > neutral && boundary.HasValue && rpm > boundary|| _gear ==neutral;
+            if (_gear == neutral)
+                return true;
+
+            var gearObj = GetCurrentGear(_rpmDictionary);
+
+            if (gearObj?.ShiftUp == null)
+            {
+                return false;
+            }
+            
+            return rpm > gearObj.ShiftUp.Value;
         }
 
         private bool ShouldShiftDown(int rpm)
         {
-            return _gear >= 2 && rpm < BoundaryForShifting(_rpmDownDictionary);
+            if (_gear < 2)
+            {
+                return false;
+            }
+            
+            var gearObj = GetCurrentGear(_rpmDictionary);
+            
+            if (gearObj?.ShiftDown == null)
+            {
+                return false;
+            }
+            
+            return rpm < gearObj.ShiftDown.Value;
         }
 
 
